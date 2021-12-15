@@ -1,0 +1,22 @@
+* Visualize the Git history
+
+  This is quite inspired by [[https://adamtornhill.com/][Adam Tornhill's]] "Your code as a crime scene", "Software design XRays" 
+
+  The main difference is that i am trying to implement some of the algorithms.
+
+  
+
+* Project goals
+
+  - Have fun coding stuff!
+  - Learn about Software Architecture git, python,js, d3.js et al
+  - Use python to create json from git output that can be fed with minimal js to d3.js
+  - Have some level of interactivity
+  - Focus on C++ projects
+
+
+
+
+
+    
+

@@ -98,7 +98,13 @@ def edits(cfg):
 
 
 
-def tranform_links_to_hierarhy(ls):
+def tranform_links_to_hierarhy(ls, limit = 3):
+    """
+    Create a hierarchy from the links
+
+    only include entries with more than limit links 
+
+    """
     res = {}
     for f in ls :
         head, tail = os.path.split(f)
@@ -107,7 +113,9 @@ def tranform_links_to_hierarhy(ls):
             if k not in it:
                 it[k] = {}
             it = it[k]
-        it[tail] = {"name" : f, "links" : ls[f].most_common()}
+        entry = {"name" : f, "links" : [x for x in ls[f].most_common() if x[1] > limit]}
+        if entry["links"]:
+            it[tail] = entry
 
     return d3_hirarchy(res);
 
@@ -150,7 +158,7 @@ if __name__ == "__main__":
 
     # print(touches({"folder" : ".", "since" : None, "dir" : "."}))
     # print(edits({"folder" : ".", "since" : None, "dir" : "."}))
-    cfg = {"folder" : ".",  "dir" : "/home/jacob/Projects/maat-scripts/www/"}
+    cfg = {"name": "hesr", "since" : "2020-01-01", "folder" : ".",  "dir" : "/home/jacob/Projects/gitstory"}
     ls = get_links(cfg);
     pp(ls);
 

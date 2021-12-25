@@ -20,6 +20,24 @@ function clearSvg() {
         .attr("height", height + margin.top + margin.bottom);
 }
 
+function show_tooltip(label_fun) {
+    return function(e,i) {
+        d3.select(this).attr("fill", "red");
+        d3.select("#tooltip")
+            .style("left", (e.pageX + 10) + "px")
+            .style("top", (e.pageY - 15) + "px")
+            .style("opacity", 1)
+            .text(label_fun(i));
+    };
+}
+
+function hide_tooltip() {
+    return function(d,i) {
+        d3.select(this).transition().attr("fill", "black");
+        d3.select("#tooltip").style("opacity", 0);
+    };
+}
+
 function graphTouches(data) {
     console.log(data);
     var svg = clearSvg();
@@ -43,23 +61,7 @@ function graphTouches(data) {
         .attr("transform", "rotate(45)")
         .style("text-anchor", "start")      ;
 
-    let mouseover = function(e,i) {
-        d3.select(this).attr("fill", "red");
-        d3.select("#tooltip")
-            .style("left", (e.pageX + 10) + "px")
-            .style("top", (e.pageY - 15) + "px")
-            .style("position", "absolute")
-            .style("border", " 1px solid #313639")
-            .style("border-radius", "8px")
-            .style("padding", "5px")
-            .style("opacity", 1)
-            .text(i.author);
-    };
 
-    let mouseout = function(d,i) {
-        d3.select(this).transition().attr("fill", "black");
-        d3.select("#tooltip").style("opacity", 0);
-    };
 
     var chart = svg.selectAll()
         .data(data.counter)
@@ -70,8 +72,8 @@ function graphTouches(data) {
         .attr('y', height)
         .attr('height', 0) //(s) => height - yScale(s.edits))
         .attr('width', xScale.bandwidth())
-        .on("mouseover", mouseover)
-        .on("mouseout", mouseout)
+        .on("mouseover", show_tooltip((d) => { return d.author;}))
+        .on("mouseout", hide_tooltip())
 
     chart.transition()
         .attr('height', (s) => yScale(s.edits))
@@ -117,6 +119,9 @@ function graphEdits(data) {
         .attr('y', (s) => yScale(s.edits))
         .attr('height', (s) => height - yScale(s.edits))
         .attr('width', xScale.bandwidth())
+        .on("mouseover", show_tooltip((d) => { return d.file;}))
+        .on("mouseout", hide_tooltip())
+
 }
 
 function showEdits() {

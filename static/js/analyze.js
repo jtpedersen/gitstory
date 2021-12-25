@@ -2,27 +2,32 @@ var margin = {top: 80, right: 0, bottom: 100, left: 80},
     width = 1000,
     height = 720;
 
-
 function svg()  {
     return  d3.select("svg");
 }
 
+var tooltip=  d3.select("body")
+    .append("div")
+    .attr("id", "tooltip")
+    .style("opacity", 0);
+
+
 function clearSvg() {
     svg().remove();
-    d3.select("#stage")
+    return d3.select("#stage")
         .append("svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g");
+        .attr("height", height + margin.top + margin.bottom);
 }
 
 function graphTouches(data) {
     console.log(data);
-    clearSvg();
+    var svg = clearSvg();
     var yScale = d3.scaleLinear()
-        .range([height, 0])
+        .range([0, height])
         .domain([0, data.max * 1.2]);
-    svg().append('g')
+
+    svg.append('g')
         .attr('transform', `translate(${margin.left}, 0)`)
         .call(d3.axisLeft(yScale));
 
@@ -31,25 +36,49 @@ function graphTouches(data) {
           .domain(data.counter.map((s) => s.author))
           .padding(0.2)
 
-    svg().append('g')
+    svg.append('g')
         .attr('transform', `translate(${margin.left}, ${height})`)
         .call(d3.axisBottom(xScale))
         .selectAll("text")
         .attr("transform", "rotate(45)")
         .style("text-anchor", "start")      ;
-    // console.log( data.counter.map((s) => xScale(s.author) ));
-    // console.log( data.counter.map((s) => s.edits ));
-    // console.log( data.counter.map((s) => yScale(s.edits) ));
 
-    svg().selectAll()
+    let mouseover = function(e,i) {
+        d3.select(this).attr("fill", "red");
+        d3.select("#tooltip")
+            .style("left", (e.pageX + 10) + "px")
+            .style("top", (e.pageY - 15) + "px")
+            .style("position", "absolute")
+            .style("border", " 1px solid #313639")
+            .style("border-radius", "8px")
+            .style("padding", "5px")
+            .style("opacity", 1)
+            .text(i.author);
+    };
+
+    let mouseout = function(d,i) {
+        d3.select(this).transition().attr("fill", "black");
+        d3.select("#tooltip").style("opacity", 0);
+    };
+
+    var chart = svg.selectAll()
         .data(data.counter)
         .enter()
         .append('rect')
         .attr('transform', `translate(${margin.left}, 0)`)
         .attr('x', (s) => xScale(s.author))
-        .attr('y', (s) => yScale(s.edits))
-        .attr('height', (s) => height - yScale(s.edits))
+        .attr('y', height)
+        .attr('height', 0) //(s) => height - yScale(s.edits))
         .attr('width', xScale.bandwidth())
+        .on("mouseover", mouseover)
+        .on("mouseout", mouseout)
+
+    chart.transition()
+        .attr('height', (s) => yScale(s.edits))
+        .attr('y', (s) => height - yScale(s.edits))
+        .duration(1000)
+        .ease(d3.easeBounceOut);
+
 }
 
 function showTouches() {
@@ -78,9 +107,6 @@ function graphEdits(data) {
         .selectAll("text")
         .attr("transform", "rotate(45)")
         .style("text-anchor", "start")      ;
-    // console.log( data.counter.map((s) => xScale(s.file) ));
-    // console.log( data.counter.map((s) => s.edits ));
-    // console.log( data.counter.map((s) => yScale(s.edits) ));
 
     svg().selectAll()
         .data(data.counter)
@@ -102,7 +128,7 @@ function showCorrelation() {
 }
 
 function graphCorrelation(data) {
-//    console.log(data);
+    //    console.log(data);
     var diameter = height,
         radius = diameter / 2,
         innerRadius = radius - 120;
@@ -252,4 +278,16 @@ function showProjects() {
             console.log(project);
             setConfig(project);
             showConfig();
-        })}
+        });
+}
+
+
+function start() {
+    d3.json("/project").then(
+        function(project) {
+            console.log(project);
+            setConfig(project);
+            showConfig();
+            showTouches();
+        });
+}

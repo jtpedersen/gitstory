@@ -38,41 +38,50 @@ function hide_tooltip() {
     };
 }
 
-function graphTouches(data) {
-    console.log(data);
-    var svg = clearSvg();
+function add_labels(svg, scale) {
+   svg.append('g')
+        .attr('transform', `translate(${margin.left}, ${height})`)
+        .call(d3.axisBottom(scale))
+        .selectAll("text")
+        .attr("transform", "rotate(45)")
+        .style("text-anchor", "start");
+}
+
+function create_show_bar_y(svg, data) {
     var yScale = d3.scaleLinear()
         .range([0, height])
         .domain([0, data.max * 1.2]);
-
     svg.append('g')
         .attr('transform', `translate(${margin.left}, 0)`)
         .call(d3.axisLeft(yScale));
+    return yScale;
+}
 
+function create_show_bar_x(svg, data, domain) {
     const xScale = d3.scaleBand()
           .range([0, width])
-          .domain(data.counter.map((s) => s.author))
+          .domain(domain)
           .padding(0.2)
 
-    svg.append('g')
-        .attr('transform', `translate(${margin.left}, ${height})`)
-        .call(d3.axisBottom(xScale))
-        .selectAll("text")
-        .attr("transform", "rotate(45)")
-        .style("text-anchor", "start")      ;
+    add_labels(svg, xScale);
+    return xScale;
+}
 
-
+function barchart(data, id_fun) {
+    var svg = clearSvg();
+    var yScale = create_show_bar_y(svg, data);
+    var xScale = create_show_bar_x(svg, data, data.counter.map(id_fun));
 
     var chart = svg.selectAll()
         .data(data.counter)
         .enter()
         .append('rect')
         .attr('transform', `translate(${margin.left}, 0)`)
-        .attr('x', (s) => xScale(s.author))
+        .attr('x', (s) => xScale(id_fun(s)))
         .attr('y', height)
-        .attr('height', 0) //(s) => height - yScale(s.edits))
+        .attr('height', 0)
         .attr('width', xScale.bandwidth())
-        .on("mouseover", show_tooltip((d) => { return d.author;}))
+        .on("mouseover", show_tooltip(id_fun))
         .on("mouseout", hide_tooltip())
 
     chart.transition()
@@ -80,48 +89,22 @@ function graphTouches(data) {
         .attr('y', (s) => height - yScale(s.edits))
         .duration(1000)
         .ease(d3.easeBounceOut);
-
 }
 
-function showTouches() {
-    loadJson("/touches", graphTouches);
+
+function graphTouches(data) {
+    console.log(data);
+    barchart(data, (s) => s.author);
 }
 
 function graphEdits(data) {
     console.log(data);
-    clearSvg();
+    barchart(data, (s) => s.file);
+}
 
-    var yScale = d3.scaleLinear()
-        .range([height, 0])
-        .domain([0, data.max * 1.2]);
-    svg().append('g')
-        .attr('transform', `translate(${margin.left}, 0)`)
-        .call(d3.axisLeft(yScale));
 
-    const xScale = d3.scaleBand()
-          .range([0, width])
-          .domain(data.counter.map((s) => s.file))
-          .padding(0.2)
-
-    svg().append('g')
-        .attr('transform', `translate(${margin.left}, ${height})`)
-        .call(d3.axisBottom(xScale))
-        .selectAll("text")
-        .attr("transform", "rotate(45)")
-        .style("text-anchor", "start")      ;
-
-    svg().selectAll()
-        .data(data.counter)
-        .enter()
-        .append('rect')
-        .attr('transform', `translate(${margin.left}, 0)`)
-        .attr('x', (s) => xScale(s.file))
-        .attr('y', (s) => yScale(s.edits))
-        .attr('height', (s) => height - yScale(s.edits))
-        .attr('width', xScale.bandwidth())
-        .on("mouseover", show_tooltip((d) => { return d.file;}))
-        .on("mouseout", hide_tooltip())
-
+function showTouches() {
+    loadJson("/touches", graphTouches);
 }
 
 function showEdits() {

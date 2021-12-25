@@ -30,7 +30,7 @@ def projects():
     """
     p = {}
     p["name"] = "inkscape"
-    p["dir"] =  "/home/jacob/src/inkscape" #"/home/jacob/Projects/maat-scripts/www"
+    p["dir"] =  "/home/jacob/src/inkscape"
     p["since"] = "2020-10-13"
     p["folder"] = "."
     path = os.path.join(p["dir"], p["folder"])

@@ -6,6 +6,7 @@ import logging
 import io
 import os
 from collections import Counter
+from cache import Memoize
 
 class GIterator:
     """Iterator over lines from git output"""
@@ -62,7 +63,7 @@ class GIterator:
         self.line_iterator = iter(io.TextIOWrapper(self.process.stdout, encoding="utf-8"))
 
 
-
+@Memoize
 def touches(cfg):
     """
     How often is something touched
@@ -79,7 +80,7 @@ def touches(cfg):
 
     return res
 
-
+@Memoize
 def edits(cfg):
     """
     whom touched this
@@ -110,6 +111,8 @@ def tranform_links_to_hierarhy(ls):
 
     return d3_hirarchy(res);
 
+
+@Memoize
 def get_links(cfg):
     res = {}
     for rev in GIterator.log(cfg, ['--format=%H']):

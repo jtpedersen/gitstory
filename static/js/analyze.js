@@ -76,6 +76,7 @@ function barchart(data, id_fun) {
         .data(data.counter)
         .enter()
         .append('rect')
+        .attr("id", "barchart_bar")
         .attr('transform', `translate(${margin.left}, 0)`)
         .attr('x', (s) => xScale(id_fun(s)))
         .attr('y', height)
@@ -176,8 +177,10 @@ function graphCorrelation(data) {
         .attr("fill", "none")
         .attr("stroke", "black")
         .attr("opacity", 0.03)
-        .attr("stroke-width", 4);
-
+        .attr("stroke-width", 4)
+        .on("mouseover", (d, i) => {
+            d3.select(this).attr("stroke", "red");})
+        .on("mouseout", hide_tooltip())
 
 }
 

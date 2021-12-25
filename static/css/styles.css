@@ -150,3 +150,8 @@ text.active {
     padding: 3px 5px;
     border-radius: 8px;
 }
+
+#barchart_bar {
+    rx: 2px;
+    ry: 2px;
+}

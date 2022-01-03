@@ -177,6 +177,7 @@ def analyze_complexity(cfg, rev):
         res += complexity
     return res, lines;
 
+@Memoize
 def complexity_trend(cfg):
     assert("filename" in cfg)
     print(cfg)

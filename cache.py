@@ -14,8 +14,9 @@ cache_dir = os.path.join(dir_path, "cache")
 
 def hash_fun(cfg):
     m = hashlib.sha256()
-    for key in ["name", "dir", "since", "folder"]:
-        m.update(cfg[key].encode())
+    for key in ["name", "dir", "since", "folder", "filename"]:
+        if key in cfg:
+            m.update(cfg[key].encode())
     return m.hexdigest()
 
 class Memoize:

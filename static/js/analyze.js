@@ -204,21 +204,23 @@ function graphCorrelation(data) {
         .attr("dy", "0.31em")
         .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
         .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
+        .attr("id", (d) => {return d.data.name.replaceAll("/", "-").replaceAll(".", "-")})
         .text(function(d) { return d.data.name; });
 
-    // adds the circle to the node
-    node.append("circle")
-        .attr("r", d => d.data.value)
-        .style("stroke", d => d.data.type)
-        .style("fill", d => d.data.type);
+    // // adds the circle to the node
+    // node.append("circle")
+    //     .attr("r", d => d.data.value)
+    //     .style("stroke", d => d.data.type)
+    //     .style("fill", d => d.data.type);
 
-    // adds the text to the node
-    node.append("text")
-        .attr("dy", ".35em")
-        .attr("x", d => d.children ? (d.data.value + 5) * -1 : d.data.value + 5)
-        .attr("y", d => d.children && d.depth !== 0 ? -(d.data.value + 5) : d)
-        .style("text-anchor", d => d.children ? "end" : "start")
-        .text(d => d.data.name);
+    // // adds the text to the node
+    // node.append("text")
+    //     .attr("dy", ".35em")
+    //     .attr("x", d => d.children ? (d.data.value + 5) * -1 : d.data.value + 5)
+    //     .attr("y", d => d.children && d.depth !== 0 ? -(d.data.value + 5) : d)
+    //     .style("text-anchor", d => d.children ? "end" : "start")
+    //     .attr("id", (d) => {return "lbl-"+d.data.name.replaceAll("/", "-")})
+    //     .text(d => d.data.name);
 
     var line = d3.radialLine()
         .curve(d3.curveBundle.beta(0.85))
@@ -238,11 +240,21 @@ function graphCorrelation(data) {
         .attr("d", line)
         .attr("fill", "none")
         .attr("stroke", "black")
-        .attr("opacity", 0.03)
+//        .attr("opacity", )
         .attr("stroke-width", 4)
         .on("mouseover", (d, i) => {
-            d3.select(this).attr("stroke", "red");})
-        .on("mouseout", hide_tooltip())
+            console.log(this);
+            console.log(d);
+            console.log(i);
+            src_lbl = "#" + i.source.data.name.replaceAll("/", "-").replaceAll(".", "-");
+            target_lbl = "#" + i.target.data.name.replaceAll("/", "-").replaceAll(".", "-");
+            d3.select(src_lbl).attr("stroke", "red");
+            d3.select(target_lbl).attr("stroke", "red");
+        })
+        .on("mouseout", () => {
+            d3.selectAll(".node").attr("stroke", "#333");
+        })
+
 
 }
 

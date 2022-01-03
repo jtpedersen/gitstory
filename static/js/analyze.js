@@ -90,6 +90,8 @@ function barchart(data, id_fun) {
         .attr('y', (s) => height - yScale(s.edits))
         .duration(1000)
         .ease(d3.easeBounceOut);
+
+    return chart;
 }
 
 
@@ -100,7 +102,22 @@ function graphTouches(data) {
 
 function graphEdits(data) {
     console.log(data);
-    barchart(data, (s) => s.file);
+    let id_fun = (s) => s.file;
+    let chart = barchart(data, id_fun);
+
+    chart.on("click", (s) => {
+        showComplexity(id_fun(s.srcElement.__data__));
+    });
+}
+
+
+function showComplexity(filename) {
+    console.log(filename);
+    let cfg = getConfig();
+    cfg.filename = filename;
+    setConfig(cfg);
+    loadJson('/complexity',
+             (data) => {console.log(data);});
 }
 
 

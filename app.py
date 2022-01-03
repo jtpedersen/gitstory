@@ -66,6 +66,11 @@ def correlate():
     res = {"name": "root", "children" : res}
     return jsonify(res)
 
+@app.route('/complexity', methods=['POST'])
+def complexity():
+    return jsonify(git.complexity_trend(request.json))
+
+
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
     app.run(debug=True, port=5000)

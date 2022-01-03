@@ -152,13 +152,54 @@ def d3_hirarchy(ls):
             res.append(nn)
     return res;
 
+
+def analyze_complexity(cfg, rev):
+    """
+    given a git-filespec calculuate the "leading edge"  complexity
+
+    The leading edget is a simplistic heuristic for complixity
+    """
+    res = 0
+    filespec = f"{rev}:{cfg['folder']}/{cfg['filename']}"
+    cmd = ["show", filespec]
+    lines = 0
+    for line in GIterator(cmd, cwd=cfg["dir"]):
+        lines += 1
+        complexity = 0
+        for c in line:
+            if c == ' ':
+                complexity+= 1
+            elif c == '\t':
+                complexity += 4
+            else:
+                break
+#        print(f'{complexity}:{line}')
+        res += complexity
+    return res, lines;
+
+def complexity_trend(cfg):
+    assert("filename" in cfg)
+    print(cfg)
+    res = []
+    for entry in GIterator.log(cfg, ['--format=%H %cI']):
+        rev, time = entry.split(" ")
+        complexity, lines = analyze_complexity(cfg, rev)
+        res.append({"ts": time, "complexity": complexity, "lines" : lines})
+    return res
+
 if __name__ == "__main__":
     from pprint import pprint as pp
 
 
     # print(touches({"folder" : ".", "since" : None, "dir" : "."}))
     # print(edits({"folder" : ".", "since" : None, "dir" : "."}))
-    cfg = {"name": "hesr", "since" : "2020-01-01", "folder" : ".",  "dir" : "/home/jacob/Projects/gitstory"}
-    ls = get_links(cfg);
+#    cfg = {"name": "hesr", "since" : "2020-01-01", "folder" : ".",  "dir" : "/home/jacob/Projects/gitstory"}
+#    ls = get_links(cfg);
+ #   pp(ls);
+
+    dcfg = {"name": "hesr", "since" : "2020-01-01", "folder" : ".",  "filename" : "git.py", "dir" : "/home/jacob/Projects/gitstory"}
+    ls = complexity_trend(dcfg)
     pp(ls);
+
+
 

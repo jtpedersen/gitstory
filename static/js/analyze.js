@@ -14,6 +14,7 @@ var tooltip=  d3.select("body")
 
 function clearSvg() {
     svg().remove();
+    d3.select("#tooltip").style("opacity", 0); //    hide_tooltip();
     return d3.select("#stage")
         .append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -111,13 +112,57 @@ function graphEdits(data) {
 }
 
 
+function line_chart(data) {
+    console.log(data);
+    var svg = clearSvg();
+
+    var parseTime = (d) => { return d3.isoParse(d.ts);};
+
+    var x = d3.scaleTime()
+      .domain(d3.extent(data, function(d) { return parseTime(d); }))
+      .range([ 0, width ]);
+    svg.append("g")
+        .attr('transform', `translate(${margin.left}, ${height})`)
+      .call(d3.axisBottom(x));
+
+    // Add Y axis
+    var y = d3.scaleLinear()
+        .domain([0, d3.max(data, function(d) { return Math.max(d.complexity, d.lines); })])
+      .range([ height, 0 ]);
+
+    svg.append("g")
+        .attr('transform', `translate(${margin.left}, 0)`)
+        .call(d3.axisLeft(y));
+
+    svg.append("path")
+        .datum(data)
+        .attr('transform', `translate(${margin.left}, 0)`)
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 1.5)
+        .attr("d", d3.line()
+              .x(function(d) { return x(parseTime(d)); })
+              .y(function(d) { return y(d.complexity) })
+             )
+    svg.append("path")
+        .datum(data)
+        .attr('transform', `translate(${margin.left}, 0)`)
+        .attr("fill", "none")
+        .attr("stroke", "red")
+        .attr("stroke-width", 1.5)
+        .attr("d", d3.line()
+              .x(function(d) { return x(parseTime(d)); })
+              .y(function(d) { return y(d.lines) })
+             )
+}
+
+
 function showComplexity(filename) {
     console.log(filename);
     let cfg = getConfig();
     cfg.filename = filename;
     setConfig(cfg);
-    loadJson('/complexity',
-             (data) => {console.log(data);});
+    loadJson('/complexity', line_chart);
 }
 
 
@@ -296,6 +341,6 @@ function start() {
             console.log(project);
             setConfig(project);
             showConfig();
-            showTouches();
+            showEdits();
         });
 }

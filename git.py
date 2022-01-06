@@ -32,7 +32,9 @@ class GIterator:
         if "since" in cfg:
             cmd += [f"--after={cfg['since']}"]
         cmd += args
-        if "dir" in cfg:
+        if "filename" in cfg:
+            cmd += ["--", cfg["filename"]]
+        elif "folder" in cfg:
             cmd += [cfg["folder"]]
         return cls(cmd, cwd = cfg["dir"])
 
@@ -160,7 +162,7 @@ def analyze_complexity(cfg, rev):
     The leading edget is a simplistic heuristic for complixity
     """
     res = 0
-    filespec = f"{rev}:{cfg['folder']}/{cfg['filename']}"
+    filespec = f"{rev}:{cfg['filename']}"
     cmd = ["show", filespec]
     lines = 0
     for line in GIterator(cmd, cwd=cfg["dir"]):

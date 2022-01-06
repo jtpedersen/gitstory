@@ -325,6 +325,7 @@ function showConfig() {
         .text(project.name + "@" + project["folder"])
         .append("select")
         .attr("id", "subdirs");
+    dd.append("option").text("Drilldown")
     project.dirs.forEach(x=> dd.append("option").text(x));
 
     // handle on click event
